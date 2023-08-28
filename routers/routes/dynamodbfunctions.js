@@ -114,54 +114,54 @@ const postQuestion = async (question) => {
   }
 };
 
-const postQuestionAnswerCombined = async (
-  question,
-  correct_answer,
-  option_a,
-  option_b,
-  option_c,
-  option_d
-) => {
-  try {
-    const questionId = generateUniqueId(); // Implement a unique ID generation function
-    const putQuestionParams = {
-      TableName: "questions",
-      Item: {
-        id: { S: questionId },
-        question: { S: question },
-      },
-    };
+// const postQuestionAnswerCombined = async (
+//   question,
+//   correct_answer,
+//   option_a,
+//   option_b,
+//   option_c,
+//   option_d
+// ) => {
+//   try {
+//     const questionId = generateUniqueId(); // Implement a unique ID generation function
+//     const putQuestionParams = {
+//       TableName: "questions",
+//       Item: {
+//         id: { S: questionId },
+//         question: { S: question },
+//       },
+//     };
 
-    const putAnswerParams = {
-      TableName: "answers",
-      Item: {
-        question_id: { S: questionId },
-        correct_answer: { S: correct_answer },
-        option_a: { S: option_a },
-        option_b: { S: option_b },
-        option_c: { S: option_c },
-        option_d: { S: option_d },
-      },
-    };
+//     const putAnswerParams = {
+//       TableName: "answers",
+//       Item: {
+//         question_id: { S: questionId },
+//         correct_answer: { S: correct_answer },
+//         option_a: { S: option_a },
+//         option_b: { S: option_b },
+//         option_c: { S: option_c },
+//         option_d: { S: option_d },
+//       },
+//     };
 
-    return new Promise((resolve, reject) => {
-      dynamoDB.transactWriteItems(
-        {
-          TransactItems: [{ Put: putQuestionParams }, { Put: putAnswerParams }],
-        },
-        (err, data) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve();
-          }
-        }
-      );
-    });
-  } catch (err) {
-    throw err;
-  }
-};
+//     return new Promise((resolve, reject) => {
+//       dynamoDB.transactWriteItems(
+//         {
+//           TransactItems: [{ Put: putQuestionParams }, { Put: putAnswerParams }],
+//         },
+//         (err, data) => {
+//           if (err) {
+//             reject(err);
+//           } else {
+//             resolve();
+//           }
+//         }
+//       );
+//     });
+//   } catch (err) {
+//     throw err;
+//   }
+// };
 
 const getAnswersByQuestionId = async (questionId) => {
   try {
@@ -185,7 +185,6 @@ const getAnswersByQuestionId = async (questionId) => {
             option_b: item.option_b.S,
             option_c: item.option_c.S,
             option_d: item.option_d.S,
-            user_answer: item.user_answer ? item.user_answer.S : null,
           }));
           resolve(answers);
         }
@@ -214,7 +213,6 @@ const getAllAnswers = async () => {
             option_b: item.option_b.S,
             option_c: item.option_c.S,
             option_d: item.option_d.S,
-            user_answer: item.user_answer ? item.user_answer.S : null,
           }));
           resolve(answers);
         }
@@ -252,13 +250,77 @@ const updateUserAnswer = async (questionId, userAnswer) => {
   }
 };
 
+const createQuestion = async (questionText) => {
+  try {
+    const questionId = generateUniqueId(); // Generate a unique question ID
+    const params = {
+      TableName: "questions",
+      Item: {
+        id: { S: questionId },
+        question: { S: questionText },
+      },
+    };
+
+    await new Promise((resolve, reject) => {
+      dynamoDB.putItem(params, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
+      });
+    });
+
+    return questionId;
+  } catch (err) {
+    throw err;
+  }
+};
+
+const createAnswer = async (
+  questionId,
+  correctAnswer,
+  optionA,
+  optionB,
+  optionC,
+  optionD
+) => {
+  try {
+    const params = {
+      TableName: "answers",
+      Item: {
+        question_id: { S: questionId },
+        correct_answer: { S: correctAnswer },
+        option_a: { S: optionA },
+        option_b: { S: optionB },
+        option_c: { S: optionC },
+        option_d: { S: optionD },
+      },
+    };
+
+    await new Promise((resolve, reject) => {
+      dynamoDB.putItem(params, (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(data);
+        }
+      });
+    });
+  } catch (err) {
+    throw err;
+  }
+};
+
 module.exports = {
   getQuestions,
   getRandomQuestions,
   getQuestionById,
   postQuestion,
-  postQuestionAnswerCombined,
+  // postQuestionAnswerCombined,
   getAnswersByQuestionId,
   getAllAnswers,
   updateUserAnswer,
+  createQuestion,
+  createAnswer,
 };

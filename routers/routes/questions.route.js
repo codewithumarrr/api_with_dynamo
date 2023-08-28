@@ -54,14 +54,20 @@ const postQuestionAnswerCombined = async (req, res) => {
     req.body;
 
   try {
-    await DynamoDBFunctions.postQuestionAnswerCombined(
-      question,
+    // Perform the first transaction (create question) and await its completion
+    const newQuestionId = await DynamoDBFunctions.createQuestion(question);
+
+    // Perform the second transaction (create answer) using the newQuestionId
+
+    await DynamoDBFunctions.createAnswer(
+      newQuestionId,
       correct_answer,
       option_a,
       option_b,
       option_c,
       option_d
     );
+
     res.status(201).json({ message: "Question and answer added successfully" });
   } catch (err) {
     console.error("Error adding question and answer:", err);

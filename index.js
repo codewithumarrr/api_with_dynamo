@@ -28,9 +28,9 @@ app.use((err, req, res, next) => {
 
 // Start the server
 const port = process.env.PORT || 3000;
-const server = app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+// const server = app.listen(port, () => {
+//   console.log(`Server running on port ${port}`);
+// });
 
 process.on("SIGINT", () => {
   closeDBConnection();
@@ -40,4 +40,4 @@ process.on("exit", () => {
   closeDBConnection();
 });
 
-// exports.handler = serverless(app);
+exports.handler = serverless(app);
