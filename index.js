@@ -41,5 +41,3 @@ process.on("exit", () => {
 });
 
 exports.handler = serverless(app);
-
-console.log("hello")
